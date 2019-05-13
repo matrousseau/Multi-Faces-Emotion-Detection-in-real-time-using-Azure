@@ -25,8 +25,9 @@ class EmotionCapture():
         image_path = "D:\\IA\\Projets\\Multi-Faces-Emotion-Detection-in-real-time-using-Azure\\13-05-19\\frame%d.jpg" % count
 
         # Read the image into a byte array
-        image_data = open(image_path, "rb").read()
-        headers = { 'Ocp-Apim-Subscription-Key': subscription_key }
+        image_data = open(image_path, "rb")
+        headers = {'Content-Type': 'application/octet-stream',
+                    'Ocp-Apim-Subscription-Key': subscription_key}
 
         params = {
             'returnFaceId': 'true',
