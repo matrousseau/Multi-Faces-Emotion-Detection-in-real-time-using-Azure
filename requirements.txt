@@ -1,0 +1,17 @@
+certifi==2019.3.9
+chardet==3.0.4
+cognitive-face==1.5.0
+cycler==0.10.0
+idna==2.8
+kiwisolver==1.1.0
+matplotlib==3.0.3
+numpy==1.16.3
+opencv-python==4.1.0.25
+pandas==0.24.2
+Pillow==6.0.0
+pyparsing==2.4.0
+python-dateutil==2.8.0
+pytz==2019.1
+requests==2.21.0
+six==1.12.0
+urllib3==1.24.3

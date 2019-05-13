@@ -9,7 +9,7 @@ class EmotionCapture():
 
     def detect_emotion(self, frame):
         font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(frame, 'Thibault la chochonne', (10,450), font, 3, (0, 255, 0), 2, cv2.LINE_AA)
+        cv2.putText(frame, 'test', (10,450), font, 3, (0, 255, 0), 2, cv2.LINE_AA)
         return frame
 
     def capture_frame(self):
