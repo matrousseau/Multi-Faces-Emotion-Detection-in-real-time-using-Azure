@@ -8,7 +8,7 @@ import os
 import datetime
 import json
 import sqlite3
-
+import io
 conn = sqlite3.connect('faces.db')
 
 c = conn.cursor()
@@ -28,8 +28,15 @@ class EmotionCapture():
 
     def detect_emotion(self, frame, count):
 
+
+        # OUVERTURE DE L'Image
         image_path = self.path_folder + "/img/frame%d.jpg" % count
         image_data = open(image_path, "rb")
+        print(type(image_data))
+        # image_data = (io.BufferedReader(frame))
+        imgplot = plt.imshow(image_data)
+        print(image_data)
+        print(type(image_data))
 
         headers = {'Content-Type': 'application/octet-stream',
            'Ocp-Apim-Subscription-Key': self.subscription_key}
@@ -61,7 +68,7 @@ class EmotionCapture():
             cv2.imshow('frame',frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
-    
+
     def add_square(self, image, faces):
 
 
@@ -85,7 +92,7 @@ class EmotionCapture():
             cv2.putText(image,"%s"%(gender.capitalize()),(fr["left"]+fr["width"], fr["top"]), font, 1,(255,255,255))
             cv2.putText(image,"%s"%(age),(fr["left"]+fr["width"], fr["top"]+ 40), font, 1,(255,255,255))
 
-            
+
             # if surprise > 0.5:
             #     cv2.putText(image,"%s"%(("Surprise"),(fr["left"]+fr["width"], fr["top"] + 120), font, 1,(255,255,255))
             # elif neutral > 0.5:
@@ -97,8 +104,8 @@ class EmotionCapture():
             c.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
 
         conn.commit()
-        
-        
+
+
         return image
 
 
