@@ -8,7 +8,7 @@ import os
 import datetime
 import json
 import sqlite3
-import io
+
 conn = sqlite3.connect('faces.db')
 
 c = conn.cursor()
@@ -17,9 +17,9 @@ class EmotionCapture():
 
     def __init__(self):
         self.flow = cv2.VideoCapture(1)
-        self.subscription_key = '763213624f1a4069804a5ef00f702e1b'
+        self.subscription_key = 'a4c51bb3b2f04086b706f15ff6142cdd'
         assert self.subscription_key
-        self.face_api_url = 'https://westcentralus.api.cognitive.microsoft.com/face/v1.0/detect'
+        self.face_api_url = ' https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect'
         now = datetime.datetime.now()
         self.path_folder = now.strftime("%Y-%m-%d-%Hh%Mm%Ss")
         os.mkdir(self.path_folder)
@@ -28,15 +28,8 @@ class EmotionCapture():
 
     def detect_emotion(self, frame, count):
 
-
-        # OUVERTURE DE L'Image
         image_path = self.path_folder + "/img/frame%d.jpg" % count
         image_data = open(image_path, "rb")
-        print(type(image_data))
-        # image_data = (io.BufferedReader(frame))
-        imgplot = plt.imshow(image_data)
-        print(image_data)
-        print(type(image_data))
 
         headers = {'Content-Type': 'application/octet-stream',
            'Ocp-Apim-Subscription-Key': self.subscription_key}
@@ -92,19 +85,22 @@ class EmotionCapture():
             cv2.putText(image,"%s"%(gender.capitalize()),(fr["left"]+fr["width"], fr["top"]), font, 1,(255,255,255))
             cv2.putText(image,"%s"%(age),(fr["left"]+fr["width"], fr["top"]+ 40), font, 1,(255,255,255))
 
+            emotion = "default"
+            color = (255,255,255)
 
-            # if surprise > 0.5:
-            #     cv2.putText(image,"%s"%(("Surprise"),(fr["left"]+fr["width"], fr["top"] + 120), font, 1,(255,255,255))
-            # elif neutral > 0.5:
-            #     cv2.putText(image,"%s"%(("Neutre"),(fr["left"]+fr["width"], fr["top"] + 120), font, 1,(255,255,255))
-            # elif happiness > 0.5:
-            #     cv2.putText(image,"%s"%(("Happy"),(fr["left"]+fr["width"], fr["top"] + 120), font, 1,(255,255,255))
-
+            if surprise > 0.5:
+                emotion = "surprise"
+                color = (0,0,255)
+            elif neutral > 0.5:
+                emotion = "neutral"
+                color = (255,0,0)
+            elif happiness > 0.5:
+                emotion = "happy"
+                color = (0,255,0)
+            cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
 
             c.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
-
-        conn.commit()
-
+            conn.commit()
 
         return image
 

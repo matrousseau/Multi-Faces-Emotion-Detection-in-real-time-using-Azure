@@ -34,7 +34,7 @@ class VideoCamera(object):
 
         # LINK TO DB
         self.connexion_db = sqlite3.connect('faces.db')
-        self.cursor = self. connexion_db.cursor()
+        self.cursor = self.connexion_db.cursor()
 
     def __del__(self):
         self.flow.release()
@@ -63,27 +63,46 @@ class VideoCamera(object):
         squared_frame = self.add_square(image, faces)
         return squared_frame
 
-    def add_square(self, frame, faces):
+    def add_square(self, image, list_faces):
 
-        for face in faces:
+        for face in list_faces:
             fr = face["faceRectangle"]
             fa = face["faceAttributes"]
             fe = fa["emotion"]
+
             age = fa["age"]
             gender = fa["gender"]
+
             surprise = fe["surprise"]
             neutral = fe["neutral"]
             happiness = fe["happiness"]
+
+            # print(fr)
             origin = (fr["left"], fr["top"])
-
-            cv2.rectangle(frame, (fr["left"], fr["top"]+fr["height"]), (fr["left"]+fr["width"], fr["top"]),(253,253,253),2)
+            # print(origin, fr["width"], fr["height"])
+            cv2.rectangle(image, (fr["left"], fr["top"]+fr["height"]), (fr["left"]+fr["width"], fr["top"]),(253,253,253),2)
             font = cv2.FONT_HERSHEY_DUPLEX
-            cv2.putText(frame,"%s"%(gender.capitalize()),(fr["left"]+fr["width"], fr["top"]), font, 1,(255,255,255))
-            cv2.putText(frame,"%s"%(age),(fr["left"]+fr["width"], fr["top"]+ 40), font, 1,(255,255,255))
-            self.cursor.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
+            cv2.putText(image,"%s"%(gender.capitalize()),(fr["left"]+fr["width"], fr["top"]), font, 1,(255,255,255))
+            cv2.putText(image,"%s"%(age),(fr["left"]+fr["width"], fr["top"]+ 40), font, 1,(255,255,255))
 
-        # self.connexion_db.commit()
-        return frame
+            emotion = "default"
+            color = (255,255,255)
+
+            if surprise > 0.5:
+                emotion = "surprise"
+                color = (0,0,255)
+            elif neutral > 0.5:
+                emotion = "neutral"
+                color = (255,0,0)
+            elif happiness > 0.5:
+                emotion = "happy"
+                color = (0,255,0)
+            cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
+
+            self.cursor.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
+            self.connexion_db.commit()
+
+        return image
 
 
 def gen(camera):
