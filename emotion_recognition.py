@@ -99,7 +99,7 @@ class EmotionCapture():
                 color = (0,255,0)
             cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
 
-            c.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
+            # c.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
             conn.commit()
 
         return image

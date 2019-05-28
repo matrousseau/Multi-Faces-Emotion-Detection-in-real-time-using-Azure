@@ -15,6 +15,8 @@ import datetime
 import json
 import sqlite3
 
+external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
+
 class VideoCamera(object):
     def __init__(self):
 
@@ -99,7 +101,7 @@ class VideoCamera(object):
                 color = (0,255,0)
             cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
 
-            self.cursor.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
+            # self.cursor.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
             self.connexion_db.commit()
 
         return image
@@ -112,16 +114,57 @@ def gen(camera):
                b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 server = Flask(__name__)
-app = dash.Dash(__name__, server=server)
+app = dash.Dash(__name__, server=server, external_stylesheets=external_stylesheets)
+
+colors = {
+    'background': '#111111',
+    'text': '#7FDBFF'
+}
+
 
 @server.route('/video_feed')
 def video_feed():
     return Response(gen(VideoCamera()),mimetype='multipart/x-mixed-replace; boundary=frame')
 
-app.layout = html.Div([
+app.layout = html.Div(style={'backgroundColor': colors['background']}, children=[
+
     html.H1("Multi faces emotion detection"),
-    html.Img(src="/video_feed")
+    html.Img(src="/video_feed"),
+
+    html.H1(
+        children='TechIsMagic by MagicLab',
+        style={
+            'textAlign': 'center',
+            'color': colors['text']
+        }
+    ),
+
+    html.Div(children='Dash: A web application framework for Python.', style={
+        'textAlign': 'center',
+        'color': colors['text']
+    }),
+
+    dcc.Graph(
+        id='example-graph-2',
+        figure={
+            'data': [
+                {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
+                {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
+            ],
+            'layout': {
+                'plot_bgcolor': colors['background'],
+                'paper_bgcolor': colors['background'],
+                'font': {
+                    'color': colors['text']
+                }
+            }
+        }
+    )
 ])
+
+
+
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
