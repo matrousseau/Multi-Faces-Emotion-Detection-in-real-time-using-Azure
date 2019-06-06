@@ -14,6 +14,14 @@ import os
 import datetime
 import json
 import sqlite3
+import pyodbc
+
+# conn = pyodbc.connect('Driver={SQL Server};'
+#                       'Server=DESKTOP-PKQ49BE\SQLEXPRESS;'
+#                       'Database=faces;'
+#                       'Trusted_Connection=yes;')
+
+# c = conn.cursor()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -31,12 +39,7 @@ class VideoCamera(object):
         now = datetime.datetime.now()
         self.path_folder = now.strftime("%Y-%m-%d-%Hh%Mm%Ss")
         os.mkdir(self.path_folder)
-        os.mkdir(self.path_folder + '/logs')
         os.mkdir(self.path_folder + '/img')
-
-        # LINK TO DB
-        self.connexion_db = sqlite3.connect('faces.db')
-        self.cursor = self.connexion_db.cursor()
 
     def __del__(self):
         self.flow.release()
@@ -101,8 +104,8 @@ class VideoCamera(object):
                 color = (0,255,0)
             cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
 
-            # self.cursor.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
-            self.connexion_db.commit()
+            # c.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
+            # conn.commit()
 
         return image
 
@@ -144,22 +147,22 @@ app.layout = html.Div(style={'backgroundColor': colors['background']}, children=
         'color': colors['text']
     }),
 
-    dcc.Graph(
-        id='example-graph-2',
-        figure={
-            'data': [
-                {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
-                {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
-            ],
-            'layout': {
-                'plot_bgcolor': colors['background'],
-                'paper_bgcolor': colors['background'],
-                'font': {
-                    'color': colors['text']
-                }
-            }
-        }
-    )
+    # dcc.Graph(
+    #     id='example-graph-2',
+    #     figure={
+    #         'data': [
+    #             {'x': [1, 2, 3], 'y': [4, 1, 2], 'type': 'bar', 'name': 'SF'},
+    #             {'x': [1, 2, 3], 'y': [2, 4, 5], 'type': 'bar', 'name': u'Montréal'},
+    #         ],
+    #         'layout': {
+    #             'plot_bgcolor': colors['background'],
+    #             'paper_bgcolor': colors['background'],
+    #             'font': {
+    #                 'color': colors['text']
+    #             }
+    #         }
+    #     }
+    # )
 ])
 
 

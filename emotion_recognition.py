@@ -8,13 +8,19 @@ import os
 import datetime
 import json
 import sqlite3
+import pyodbc
 
-conn = sqlite3.connect('faces.db')
+
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=DESKTOP-PKQ49BE\SQLEXPRESS;'
+                      'Database=faces;'
+                      'Trusted_Connection=yes;')
+
 
 c = conn.cursor()
 
 class EmotionCapture():
-
+            
     def __init__(self):
         self.flow = cv2.VideoCapture(1)
         self.subscription_key = 'a4c51bb3b2f04086b706f15ff6142cdd'
@@ -23,7 +29,6 @@ class EmotionCapture():
         now = datetime.datetime.now()
         self.path_folder = now.strftime("%Y-%m-%d-%Hh%Mm%Ss")
         os.mkdir(self.path_folder)
-        os.mkdir(self.path_folder + '/logs')
         os.mkdir(self.path_folder + '/img')
 
     def detect_emotion(self, frame, count):
@@ -45,11 +50,10 @@ class EmotionCapture():
         faces = response.json()
         frame = self.add_square(frame, faces)
 
-        with open(self.path_folder + "/logs/logs%d.json" % count, 'w') as outfile:
-            json.dump(faces, outfile)
+        # with open(self.path_folder + "/logs/logs%d.json" % count, 'w') as outfile:
+        #     json.dump(faces, outfile)
 
         return frame
-
 
     def capture_frame(self):
         count = 0
@@ -63,31 +67,33 @@ class EmotionCapture():
                 break
 
     def add_square(self, image, faces):
-
+        
+        now = datetime.datetime.now()
 
         for face in faces:
+
+            # Get faces attributes
             fr = face["faceRectangle"]
             fa = face["faceAttributes"]
-            fe = fa["emotion"]
-
             age = fa["age"]
             gender = fa["gender"]
-
+            fe = fa["emotion"]
             surprise = fe["surprise"]
             neutral = fe["neutral"]
             happiness = fe["happiness"]
 
-            # print(fr)
+            # Display squares
             origin = (fr["left"], fr["top"])
-            # print(origin, fr["width"], fr["height"])
             cv2.rectangle(image, (fr["left"], fr["top"]+fr["height"]), (fr["left"]+fr["width"], fr["top"]),(253,253,253),2)
             font = cv2.FONT_HERSHEY_DUPLEX
+
+            # Display gender and age
             cv2.putText(image,"%s"%(gender.capitalize()),(fr["left"]+fr["width"], fr["top"]), font, 1,(255,255,255))
             cv2.putText(image,"%s"%(age),(fr["left"]+fr["width"], fr["top"]+ 40), font, 1,(255,255,255))
 
+            # Display emotions
             emotion = "default"
             color = (255,255,255)
-
             if surprise > 0.5:
                 emotion = "surprise"
                 color = (0,0,255)
@@ -99,12 +105,11 @@ class EmotionCapture():
                 color = (0,255,0)
             cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
 
-            # c.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
+            # Add datas in dataBase
+            c.execute("INSERT INTO face VALUES (?, ?, ?, ?, ?, ?)", (now, gender, age, surprise, neutral, happiness))
             conn.commit()
 
         return image
-
-
 
 capture = EmotionCapture()
 capture.capture_frame()
