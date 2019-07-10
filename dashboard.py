@@ -16,12 +16,12 @@ import json
 import sqlite3
 import pyodbc
 
-# conn = pyodbc.connect('Driver={SQL Server};'
-#                       'Server=DESKTOP-PKQ49BE\SQLEXPRESS;'
-#                       'Database=faces;'
-#                       'Trusted_Connection=yes;')
+conn = pyodbc.connect('Driver={SQL Server};'
+                      'Server=DESKTOP-PKQ49BE\SQLEXPRESS;'
+                      'Database=faces;'
+                      'Trusted_Connection=yes;')
 
-# c = conn.cursor()
+c = conn.cursor()
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -31,7 +31,7 @@ class VideoCamera(object):
         self.flow = cv2.VideoCapture(1)
 
         # SETUP API
-        self.subscription_key = 'a4c51bb3b2f04086b706f15ff6142cdd'
+        self.subscription_key = 'fd25c4dc3b9f40eca9afebca0446b93b'
         assert self.subscription_key
         self.face_api_url = ' https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect'
 
@@ -104,8 +104,8 @@ class VideoCamera(object):
                 color = (0,255,0)
             cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
 
-            # c.execute("INSERT INTO faces VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
-            # conn.commit()
+            c.execute("INSERT INTO face VALUES (?, ?, ?, ?, ?)", (gender, age, surprise, neutral, happiness))
+            conn.commit()
 
         return image
 

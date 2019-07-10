@@ -22,7 +22,7 @@ c = conn.cursor()
 class EmotionCapture():
             
     def __init__(self):
-        self.flow = cv2.VideoCapture(1)
+        self.flow = cv2.VideoCapture(0)
         self.subscription_key = 'a4c51bb3b2f04086b706f15ff6142cdd'
         assert self.subscription_key
         self.face_api_url = ' https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect'
@@ -69,6 +69,7 @@ class EmotionCapture():
     def add_square(self, image, faces):
         
         now = datetime.datetime.now()
+        number_faces = 0
 
         for face in faces:
 
@@ -104,9 +105,11 @@ class EmotionCapture():
                 emotion = "happy"
                 color = (0,255,0)
             cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
+                        
+            number_faces += 1
 
             # Add datas in dataBase
-            c.execute("INSERT INTO face VALUES (?, ?, ?, ?, ?, ?)", (now, gender, age, surprise, neutral, happiness))
+            c.execute("INSERT INTO face VALUES (?, ?, ?, ?, ?, ?, ?)", (now, gender, age, surprise, neutral, happiness, number_faces))
             conn.commit()
 
         return image
