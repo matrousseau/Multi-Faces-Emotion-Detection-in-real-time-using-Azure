@@ -8,24 +8,24 @@ import os
 import datetime
 import json
 import sqlite3
-import pyodbc
+# import pyodbc
 
 
-conn = pyodbc.connect('Driver={SQL Server};'
-                      'Server=DESKTOP-PKQ49BE\SQLEXPRESS;'
-                      'Database=faces;'
-                      'Trusted_Connection=yes;')
-
-
-c = conn.cursor()
+# conn = pyodbc.connect('Driver={SQL Server};'
+#                       'Server=DESKTOP-PKQ49BE\SQLEXPRESS;'
+#                       'Database=faces;'
+#                       'Trusted_Connection=yes;')
+#
+#
+# c = conn.cursor()
 
 class EmotionCapture():
-            
+
     def __init__(self):
         self.flow = cv2.VideoCapture(0)
-        self.subscription_key = 'a4c51bb3b2f04086b706f15ff6142cdd'
+        self.subscription_key = 'fd25c4dc3b9f40eca9afebca0446b93b'
         assert self.subscription_key
-        self.face_api_url = ' https://westeurope.api.cognitive.microsoft.com/face/v1.0/detect'
+        self.face_api_url = ' http://192.168.99.100:5000/face/v1.0/detect'
         now = datetime.datetime.now()
         self.path_folder = now.strftime("%Y-%m-%d-%Hh%Mm%Ss")
         os.mkdir(self.path_folder)
@@ -36,16 +36,13 @@ class EmotionCapture():
         image_path = self.path_folder + "/img/frame%d.jpg" % count
         image_data = open(image_path, "rb")
 
-        headers = {'Content-Type': 'application/octet-stream',
-           'Ocp-Apim-Subscription-Key': self.subscription_key}
         params = {
             'returnFaceId': 'true',
             'returnFaceLandmarks': 'false',
-            'returnFaceAttributes': 'age,gender,headPose,smile,facialHair,glasses,' +
-            'emotion,hair,makeup,occlusion,accessories,blur,exposure,noise'
+            'returnRecognitionModel':'false',
         }
 
-        response = requests.post(self.face_api_url, params=params, headers=headers, data=image_data)
+        response = requests.post(self.face_api_url, params=params,data=image_data)
         response.raise_for_status()
         faces = response.json()
         frame = self.add_square(frame, faces)
@@ -67,7 +64,7 @@ class EmotionCapture():
                 break
 
     def add_square(self, image, faces):
-        
+
         now = datetime.datetime.now()
         number_faces = 0
 
@@ -105,12 +102,12 @@ class EmotionCapture():
                 emotion = "happy"
                 color = (0,255,0)
             cv2.putText(image,"%s"%(emotion),(fr["left"]+fr["width"], fr["top"]+ 80), font, 1,color)
-                        
+
             number_faces += 1
 
             # Add datas in dataBase
-            c.execute("INSERT INTO face VALUES (?, ?, ?, ?, ?, ?, ?)", (now, gender, age, surprise, neutral, happiness, number_faces))
-            conn.commit()
+            # c.execute("INSERT INTO face VALUES (?, ?, ?, ?, ?, ?, ?)", (now, gender, age, surprise, neutral, happiness, number_faces))
+            # conn.commit()
 
         return image
 
